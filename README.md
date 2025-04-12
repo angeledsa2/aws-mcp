@@ -1,111 +1,109 @@
-# AWS MCP
+# AWS MCP Server
 
-A [Model Context Protocol (MCP)](https://www.anthropic.com/news/model-context-protocol) server that enables AI assistants like Claude to interact with your AWS environment. This allows for natural language querying and management of your AWS resources during conversations. Think of better Amazon Q alternative.
+A JSON-RPC 2.0 compatible server that enables Claude to interact with AWS services through the Model Context Protocol (MCP).
 
-![AWS MCP](./images/aws-mcp-demo.png)
+## Overview
 
-## Features
+This implementation provides a bridge between Claude and AWS services, allowing Claude to:
 
-- 🔍 Query and modify AWS resources using natural language
-- ☁️ Support for multiple AWS profiles and SSO authentication
-- 🌐 Multi-region support
-- 🔐 Secure credential handling (no credentials are exposed to external services, your local credentials are used)
-- 🏃‍♂️ Local execution with your AWS credentials
+- List and describe EC2 instances
+- List S3 buckets and their contents
+- List Lambda functions
+- List DynamoDB tables
+- Query CloudWatch metrics
+- And more...
 
-## Prerequisites
+## Setup
 
-- [Node.js](https://nodejs.org/)
-- [Claude Desktop](https://claude.ai/download)
-- AWS credentials configured locally (`~/.aws/` directory)
+1. First, ensure you have Node.js and npm installed
 
-## Installation
+2. Clone this repository:
+   ```
+   git clone https://github.com/RafalWilinski/aws-mcp.git
+   cd aws-mcp
+   ```
 
-1. Clone the repository:
+3. Install dependencies:
+   ```
+   npm install
+   ```
+
+4. Configure AWS credentials:
+   The server uses the default AWS profile. Make sure you have configured your AWS credentials using:
+   ```
+   aws configure
+   ```
+
+## Running the Server
+
+Start the AWS MCP server:
 
 ```bash
-git clone https://github.com/RafalWilinski/aws-mcp
-cd aws-mcp
+npm start
 ```
 
-2. Install dependencies:
+This will start the JSON-RPC 2.0 compatible server that Claude can communicate with.
 
-```bash
-pnpm install
-# or
-npm install
-```
+## Configuration for Claude
 
-## Usage
-
-1. Open Claude desktop app and go to Settings -> Developer -> Edit Config
-
-![Claude Settings](./images/desktop_settings.png)
-
-2. Add the following entry to your `claude_desktop_config.json`:
+To use this MCP server with Claude, you need to configure Claude with the following settings:
 
 ```json
 {
   "mcpServers": {
     "aws": {
-      "command": "npm", // OR pnpm
+      "command": "/path/to/node",
       "args": [
-        "--silent",
-        "--prefix",
-        "/Users/<YOUR USERNAME>/aws-mcp",
-        "start"
+        "/path/to/aws-mcp/mcp-server-aws.js"
       ]
     }
   }
 }
 ```
 
-Important: Replace `/Users/<YOUR USERNAME>/aws-mcp` with the actual path to your project directory.
+Replace `/path/to/node` with your Node.js executable path and `/path/to/aws-mcp` with the absolute path to this repository.
 
-3. Restart Claude desktop app. You should see this:
+## Available Tools
 
-![Claude MCP Connection Status](./images/verify_installation.png)
+The following AWS tools are available:
 
-4. Start by selecting an AWS profile or jump to action by asking:
-   - "List available AWS profiles"
-   - "List all EC2 instances in my account"
-   - "Show me S3 buckets with their sizes"
-   - "What Lambda functions are deployed in us-east-1?"
-   - "List all ECS clusters and their services"
+### EC2
 
-## Using with `nvm`
+- `aws.ec2.describeInstances`: List EC2 instances and their details
 
-Build from source first and add following config:
+### S3
 
-```json
-{
-  "mcpServers": {
-    "aws": {
-      "command": "/Users/<USERNAME>/.nvm/versions/node/v20.10.0/bin/node",
-      "args": [
-        "<WORKSPACE_PATH>/aws-mcp/node_modules/tsx/dist/cli.mjs",
-        "<WORKSPACE_PATH>/aws-mcp/index.ts",
-        "--prefix",
-        "<WORKSPACE_PATH>/aws-mcp",
-        "start"
-      ]
-    }
-  }
-}
-```
+- `aws.s3.listBuckets`: List all S3 buckets
+- `aws.s3.listObjects`: List objects in an S3 bucket
+
+### Lambda
+
+- `aws.lambda.listFunctions`: List Lambda functions
+
+### DynamoDB
+
+- `aws.dynamodb.listTables`: List DynamoDB tables
+
+### CloudWatch
+
+- `aws.cloudwatch.getMetricStatistics`: Get CloudWatch metrics for a resource
+
+### Utility
+
+- `ping`: Simple ping/pong test to verify connectivity
+
+## Error Handling
+
+The server includes comprehensive error handling and logging. Logs are written to `/tmp/aws-mcp-server.log`.
 
 ## Troubleshooting
 
-To see logs:
+If you encounter issues:
 
-```bash
-tail -n 50 -f ~/Library/Logs/Claude/mcp-server-aws.log
-# or
-tail -n 50 -f ~/Library/Logs/Claude/mcp.log
-```
+1. Check the log file at `/tmp/aws-mcp-server.log`
+2. Verify your AWS credentials are properly configured
+3. Ensure you have the necessary permissions to access the AWS services you're trying to use
 
-## Features in Development
+## License
 
-- [ ] MFA support
-- [ ] Cache SSO credentials to prevent from refreshing them too eagerly
-
-<a href="https://glama.ai/mcp/servers/ta7kdy57us"><img width="380" height="200" src="https://glama.ai/mcp/servers/ta7kdy57us/badge" alt="aws-mcp MCP server" /></a>
+MIT

@@ -1,3 +1,4 @@
+// aws-mcp/index.ts
 console.log(JSON.stringify({
   tools: [
     {

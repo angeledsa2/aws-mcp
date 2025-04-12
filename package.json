@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsx index.ts"
+    "start": "node mcp-server-aws.js",
+    "start-jsonrpc": "node mcp-server-jsonrpc.js",
+    "start-legacy": "tsx index.ts"
   },
   "keywords": [],
   "author": "",

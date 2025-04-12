@@ -7,6 +7,9 @@ console.log(JSON.stringify({
         type: "object",
         properties: {},
         required: []
+      },
+      method: async function () {
+        return { result: "pong" };
       }
     }
   ]
